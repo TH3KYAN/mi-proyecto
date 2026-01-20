@@ -1,11 +1,7 @@
 <script>
-	import favicon from '$lib/assets/favicon.svg';
-
-	let { children } = $props();
+	// Este es el layout raíz que envuelve todas las páginas
+	import "../lib/styles/global.css";
 </script>
 
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
-
-{@render children()}
+<!-- {#slots} es donde se renderizarán las páginas -->
+<slot />
