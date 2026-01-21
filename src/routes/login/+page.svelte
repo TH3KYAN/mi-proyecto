@@ -1,5 +1,7 @@
 <script>
+    //Icons
     import { Activity, Lock, Mail, Eye, EyeOff } from "lucide-svelte";
+
     // Variables reactivas para el formulario
     let email = "";
     let password = "";
@@ -54,6 +56,12 @@
     <!-- Sección del Formulario (derecha) -->
     <div class="form-section">
         <div class="form-container">
+            <div class="logo-title">
+                <Activity size={32} />
+                <span style="font-size: 1.5rem; font-weight: 700;"
+                    >VitalCare</span
+                >
+            </div>
             <h2 class="form-title">Iniciar Sesión</h2>
             <p class="form-description">
                 Por favor, ingresa tus datos para acceder a tu dashboard.
@@ -101,9 +109,6 @@
                                 type="button"
                                 class="password-toggle"
                                 on:click={togglePassword}
-                                aria-label={showPassword
-                                    ? "Hide password"
-                                    : "Show password"}
                             >
                                 {#if showPassword}
                                     <EyeOff size={20} />
@@ -139,6 +144,9 @@
 </div>
 
 <style>
+    .logo-title {
+        display: none;
+    }
     .icon-container {
         position: absolute;
         left: 12px;
@@ -240,7 +248,6 @@
         outline: none;
         border-color: var(--color-primary);
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        background-color: var(--bg-sidebar);
     }
 
     .password-toggle {
@@ -314,6 +321,13 @@
 
         .hero-section {
             display: none;
+        }
+
+        .logo-title {
+            color: var(--color-success);
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
         }
     }
 </style>
