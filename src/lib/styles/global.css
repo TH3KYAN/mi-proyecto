@@ -58,6 +58,42 @@
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
+[data-theme="dark"] {
+    /* Fondos Dark Mode */
+    --bg-primary: #1f2937;
+    /* Gris oscuro para tarjetas */
+    --bg-secondary: #0f172a;
+    /* Gris muy oscuro fondo general */
+    --bg-sidebar: #1e293b;
+    /* Azul grisáceo sidebar */
+
+    /* Textos Dark Mode */
+    --text-primary: #f9fafb;
+    /* Blanco casi puro */
+    --text-secondary: #9ca3af;
+    /* Gris claro */
+
+    /* Bordes e Inputs Dark Mode */
+    --color-gray-50: #1f2937;
+    --color-gray-100: #374151;
+    --color-gray-200: #4b5563;
+    /* Bordes */
+    --color-gray-300: #6b7280;
+    /* Bordes inputs */
+    --color-gray-600: #d1d5db;
+    /* Textos secundarios */
+    --color-gray-700: #e5e7eb;
+    /* Textos principales */
+    --color-gray-800: #f3f4f6;
+    --color-gray-900: #ffffff;
+
+    /* Sombras más sutiles */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+}
+
+
 /* Reset básico */
 * {
     margin: 0;
@@ -97,6 +133,10 @@ body {
     border: 1px solid var(--color-gray-300);
     border-radius: var(--radius-md);
     font-size: 0.875rem;
+    color: var(--text-primary);
+    /* Asegurar que el texto del input es visible */
+    background-color: var(--bg-primary);
+    /* Asegurar fondo correcto */
 }
 
 .input:focus {

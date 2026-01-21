@@ -1,62 +1,47 @@
 <script>
-    import SettingsSidebar from "$lib/components/SettingsSidebar.svelte";
+    import Sidebar from "$lib/components/Sidebar.svelte";
+    import { settings } from "$lib/stores/settings";
 
-    let settings = {
-        theme: "System",
-        language: "English (US)",
-        displayDensity: "Compact",
-    };
-
-    let hasChanges = false;
-
-    const themeOptions = ["System", "Light", "Dark"];
-    const languageOptions = ["English (US)", "Spanish", "French", "German"];
-    const densityOptions = ["Compact", "Comfortable"];
+    const themeOptions = ["Sistema", "Claro", "Oscuro"];
+    const languageOptions = ["Español", "Inglés", "Francés", "Alemán"];
 
     let activeTab = "general";
 
-    function handleSave() {
-        console.log("Saving settings:", settings);
-        hasChanges = false;
-        // Aquí iría la lógica para guardar en el backend
-    }
-
+    // No necesitamos handleSave porque el store se actualiza automáticamente
+    // y persiste en localStorage.
     function handleCancel() {
-        // Reset settings
-        hasChanges = false;
-    }
-
-    $: if (settings) {
-        hasChanges = true;
+        // Opcional: Podríamos revertir cambios si guardáramos un "estado previo"
+        // pero por simplicidad en este UX, el cambio es inmediato.
+        // Aquí podrías recargar la página o volver al dashboard si lo prefieres.
     }
 </script>
 
 <div class="settings-container">
-    <SettingsSidebar />
+    <Sidebar />
     <main>
         <!-- Header -->
         <div class="settings-header">
-            <h1 class="settings-title">App Settings</h1>
+            <h1 class="settings-title">Configuración</h1>
             <p class="settings-subtitle">
-                Manage your application and profile settings.
+                Configura tus preferencias y ajustes de la aplicación.
             </p>
         </div>
 
         <!-- Content -->
         <div class="settings-content">
-            <h2 class="section-title">General Settings</h2>
+            <h2 class="section-title">Configuración General</h2>
             <p class="section-description">
-                Configure theme, language, and display options.
+                Configure tus preferencias y ajustes de la aplicación.
             </p>
 
             <div class="settings-grid">
                 <!-- Theme -->
                 <div class="form-group">
-                    <label for="theme" class="form-label">Theme</label>
+                    <label for="theme" class="form-label">Tema</label>
                     <select
                         id="theme"
                         class="select"
-                        bind:value={settings.theme}
+                        bind:value={$settings.theme}
                     >
                         {#each themeOptions as option}
                             <option value={option}>{option}</option>
@@ -66,46 +51,23 @@
 
                 <!-- Language -->
                 <div class="form-group">
-                    <label for="language" class="form-label">Language</label>
+                    <label for="language" class="form-label">Idioma</label>
                     <select
                         id="language"
                         class="select"
-                        bind:value={settings.language}
+                        bind:value={$settings.language}
                     >
                         {#each languageOptions as option}
                             <option value={option}>{option}</option>
                         {/each}
                     </select>
                 </div>
-
-                <!-- Display Density -->
-                <div class="form-group density-group">
-                    <!-- svelte-ignore a11y_label_has_associated_control -->
-                    <label class="form-label">Display Density</label>
-                    <div class="radio-group">
-                        {#each densityOptions as option}
-                            <label class="radio-option">
-                                <input
-                                    type="radio"
-                                    name="density"
-                                    value={option}
-                                    bind:group={settings.displayDensity}
-                                />
-                                <span>{option}</span>
-                            </label>
-                        {/each}
-                    </div>
-                </div>
             </div>
 
             <!-- Actions -->
             <div class="actions">
-                <button class="btn btn-cancel" on:click={handleCancel}
-                    >Cancel</button
-                >
-                <button class="btn btn-save" on:click={handleSave}
-                    >Save Changes</button
-                >
+                <!-- Botones ocultos o simplificados ya que el cambio es inmediato -->
+                <!-- <button class="btn btn-save" on:click={handleSave}>Guardar Cambios</button> -->
             </div>
         </div>
     </main>
@@ -197,64 +159,5 @@
         outline: none;
         border-color: var(--color-primary);
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-    }
-
-    .density-group {
-        grid-column: 1 / -1;
-    }
-
-    .radio-group {
-        display: flex;
-        gap: var(--spacing-lg);
-        margin-top: var(--spacing-sm);
-    }
-
-    .radio-option {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-        cursor: pointer;
-    }
-
-    .radio-option input[type="radio"] {
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-    }
-
-    .actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: var(--spacing-md);
-        padding-top: var(--spacing-xl);
-        border-top: 1px solid var(--color-gray-200);
-    }
-
-    .btn {
-        padding: var(--spacing-sm) var(--spacing-xl);
-        border-radius: var(--radius-md);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .btn-cancel {
-        background-color: white;
-        border: 1px solid var(--color-gray-300);
-        color: var(--gray-700);
-    }
-
-    .btn-cancel:hover {
-        background-color: var(--color-gray-50);
-    }
-
-    .btn-save {
-        background-color: var(--color-primary);
-        border: none;
-        color: white;
-    }
-
-    .btn-save:hover {
-        background-color: var(--color-primary-dark);
     }
 </style>

@@ -1,4 +1,6 @@
 <script>
+    import { page } from "$app/stores";
+
     //icons
     import {
         LayoutDashboard,
@@ -12,7 +14,8 @@
     } from "lucide-svelte";
     import { onMount } from "svelte";
 
-    export let currentPage = "alerts"; // Página actual
+    $: currentPage = $page.url.pathname; // Página actual
+    console.log(currentPage);
 
     // Valores por defecto del usuario (se reemplazarán con datos de la BD)
     let userName = "Dr. Evelyn Reed";
@@ -64,6 +67,18 @@
             icon: FileText,
             href: "/dashboard/reports",
         },
+        {
+            id: "user-management",
+            label: "Gestión de usuarios",
+            icon: Users,
+            href: "/dashboard/user-management",
+        },
+        {
+            id: "general",
+            label: "General",
+            icon: Settings,
+            href: "/dashboard/settings",
+        },
     ];
 
     const settingsItems = [
@@ -74,8 +89,6 @@
             href: "/dashboard/settings",
         },
     ];
-
-    let showSettings = currentPage.startsWith("settings");
 </script>
 
 <!-- Mobile Menu Toggle Button -->
@@ -118,7 +131,7 @@
             <a
                 href={item.href}
                 class="menu-item"
-                class:active={currentPage === item.id}
+                class:active={currentPage === item.href}
                 on:click={() => (isMobileMenuOpen = false)}
             >
                 <svelte:component this={item.icon} size={20} />
@@ -129,21 +142,41 @@
 
     <!-- Settings Section -->
     <div class="settings-section">
-        {#each settingsItems as item}
-            <a
-                href={item.href}
-                class="menu-item"
-                class:active={currentPage === item.id}
-                on:click={() => (isMobileMenuOpen = false)}
-            >
-                <svelte:component this={item.icon} size={20} />
-                <span>{item.label}</span>
-            </a>
-        {/each}
+        <button
+            class="logout-btn"
+            on:click={() => (window.location.href = "/login")}
+        >
+            <LogOut size={18} />
+            <span>Cerrar sesión</span>
+        </button>
     </div>
 </aside>
 
 <style>
+    .logout-btn {
+        width: 100%;
+        padding: var(--spacing-sm);
+        background-color: var(--color-primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+    }
+
+    .settings-section {
+        margin-top: auto;
+    }
+
+    .logout-btn:hover {
+        background-color: var(--color-primary-dark);
+    }
+
     .mobile-toggle {
         display: none; /* Hidden on desktop */
         position: fixed;
