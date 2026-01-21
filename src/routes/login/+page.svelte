@@ -1,4 +1,5 @@
 <script>
+    import { Activity, Lock, Mail, Eye, EyeOff } from "lucide-svelte";
     // Variables reactivas para el formulario
     let email = "";
     let password = "";
@@ -30,6 +31,7 @@
     <!-- Sección Hero (izquierda) -->
     <div class="hero-section">
         <div class="logo">
+            <Activity size={32} />
             <span style="font-size: 1.5rem; font-weight: 700;">VitalCare</span>
         </div>
 
@@ -40,6 +42,11 @@
         <p class="hero-subtitle">
             Tu compañero de confianza en el monitoreo continuo de signos vitales
             de pacientes.<br />
+        </p>
+        <p
+            class="hero-subtitle"
+            style="font-size: 1.125rem; font-weight: 500; color: var(--color-gray-900);"
+        >
             Bienvenido a VitalCare
         </p>
     </div>
@@ -59,51 +66,68 @@
                         >Correo Electrónico</label
                     >
                     <div class="input-wrapper">
-                        <span class="input-icon">👤</span>
+                        <div class="icon-container">
+                            <Mail size={20} />
+                        </div>
+
                         <input
                             id="email"
                             type="email"
                             class="form-input"
-                            placeholder="Enter your email"
+                            placeholder="Ejemplo@correo.com"
                             bind:value={email}
                             required
                         />
                     </div>
-                </div>
 
-                <!-- Campo Password -->
-                <div class="form-group">
-                    <label for="password" class="form-label">Contraseña</label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">🔒</span>
-                        <input
-                            id="password"
-                            type={showPassword ? "text" : "password"}
-                            class="form-input"
-                            placeholder="Enter your password"
-                            bind:value={password}
-                            required
-                        />
-                        <button
-                            type="button"
-                            class="password-toggle"
-                            on:click={togglePassword}
-                            aria-label={showPassword
-                                ? "Hide password"
-                                : "Show password"}
+                    <!-- Campo Password -->
+                    <div class="form-group">
+                        <label for="password" class="form-label"
+                            >Contraseña</label
                         >
-                            {showPassword ? "👁️" : "👁️🗨️"}
-                        </button>
+                        <div class="input-wrapper">
+                            <div class="icon-container">
+                                <Lock size={20} />
+                            </div>
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                class="form-input"
+                                placeholder="Ingresa tu contraseña"
+                                bind:value={password}
+                                required
+                            />
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                on:click={togglePassword}
+                                aria-label={showPassword
+                                    ? "Hide password"
+                                    : "Show password"}
+                            >
+                                {#if showPassword}
+                                    <EyeOff size={20} />
+                                {:else}
+                                    <Eye size={20} />
+                                {/if}
+                            </button>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end;">
+                            <a href="/forgot-password" class="forgot-password"
+                                >¿Olvidaste tu contraseña?</a
+                            >
+                        </div>
                     </div>
-                    <a href="/forgot-password" class="forgot-password"
-                        >¿Olvidaste tu contraseña?</a
-                    >
-                </div>
 
-                <!-- Botón de Login -->
-                <button type="submit" class="login-button" disabled={isLoading}>
-                    {isLoading ? "Iniciando Sesión..." : "Iniciar Sesión"}
-                </button>
+                    <!-- Botón de Login -->
+                    <button
+                        type="submit"
+                        class="login-button"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Iniciando Sesión..." : "Iniciar Sesión"}
+                    </button>
+                </div>
             </form>
 
             <!-- Link de Registro -->
@@ -115,6 +139,16 @@
 </div>
 
 <style>
+    .icon-container {
+        position: absolute;
+        left: 12px;
+        display: flex;
+        color: var(--color-success);
+        pointer-events: none;
+        z-index: 10;
+        margin-top: 10px;
+    }
+
     .login-container {
         display: flex;
         min-height: 100vh;
@@ -182,6 +216,7 @@
 
     .form-label {
         display: block;
+        margin-top: var(--spacing-sm);
         margin-bottom: var(--spacing-sm);
         font-weight: 500;
         font-size: 0.875rem;
@@ -189,14 +224,6 @@
 
     .input-wrapper {
         position: relative;
-    }
-
-    .input-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--color-gray-400);
     }
 
     .form-input {
@@ -213,6 +240,7 @@
         outline: none;
         border-color: var(--color-primary);
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        background-color: var(--bg-sidebar);
     }
 
     .password-toggle {
@@ -222,7 +250,7 @@
         transform: translateY(-50%);
         background: none;
         border: none;
-        color: var(--color-gray-400);
+        color: var(--color-success);
         cursor: pointer;
     }
 
@@ -232,6 +260,7 @@
         color: var(--color-primary);
         text-decoration: none;
         font-size: 0.875rem;
+        font-weight: 600;
         margin-top: var(--spacing-sm);
     }
 
