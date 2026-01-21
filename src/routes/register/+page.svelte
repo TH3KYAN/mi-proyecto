@@ -1,6 +1,6 @@
 <script lang="ts">
     //Icons
-    import { Eye, EyeOff, Activity, User } from "lucide-svelte";
+    import { Eye, EyeOff, Activity } from "lucide-svelte";
 
     interface FormErrors {
         fullName?: string;
