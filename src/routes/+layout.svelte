@@ -86,3 +86,5 @@
         </main>
     </div>
 {/if}
+
+// Este layout aplica un sidebar de navegación para todas las páginas excepto la de login (ruta '/')
