@@ -1,38 +1,61 @@
-# sv
+# VitalCare - Sistema de Monitoreo de Signos Vitales 🏥
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+VitalCare es una plataforma moderna y profesional diseñada para el monitoreo en tiempo real de pacientes en entornos médicos. Este proyecto proporciona una interfaz de dashboard intuitiva, responsiva y funcional para profesionales de la salud.
 
-## Creating a project
+## 🚀 Características Principales
 
-If you're seeing this, you've probably already done this step. Congrats!
+### 📊 Dashboard e Interactividad
+- **Panel de Control**: Vista resumida del estado general de los pacientes y alertas activas.
+- **Reportes con Gráficas SVG**: Visualización dinámica de tendencias de signos vitales (FC, PA, SpO2, Temperatura).
+- **Simulación de Hardware**: Sistema integrado para simular la captura de datos en tiempo real desde hardware externo con feedback visual progresivo.
+- **Exportación de Datos**: Función para descargar reportes detallados en formato CSV.
 
-```sh
-# create a new project in the current directory
-npx sv create
+### 👥 Gestión Integral
+- **Módulo de Pacientes**: CRUD completo para el registro, edición y seguimiento de pacientes con indicadores de estado de salud.
+- **Sistema de Alertas**: Clasificación de incidencias por severidad (Crítica, Alta, Media) con opción de reconocimiento y resolución.
+- **Gestión de Usuarios**: Administración de personal médico con control de roles (Administrador, Clínico, Observador) y estados de cuenta.
 
-# create a new project in my-app
-npx sv create my-app
-```
+### 📱 Diseño y UX
+- **Responsividad Total**: Interfaz optimizada para el uso en dispositivos móviles, tablets y escritorio.
+- **Estética Premium**: Diseño moderno con iconografía profesional (`Lucide Icons`), tipografía clara y paletas de colores armoniosas.
+- **Navegación Intuitiva**: Sidebar lateral adaptativo y flujos de trabajo simplificados.
 
-## Developing
+## 🛠️ Tecnologías Usadas
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- **Framework**: [SvelteKit](https://kit.svelte.dev/)
+- **Iconos**: [Lucide Svelte](https://lucide.dev/)
+- **Estilos**: Vanilla CSS (Modularizado y con variables de diseño)
+- **Lógica**: JavaScript (ES6+)
 
-```sh
-npm run dev
+## 📦 Instalación y Configuración
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+Sigue estos pasos para ejecutar el proyecto localmente:
 
-## Building
+1. **Clonar el repositorio**:
+   ```bash
+   git clone <url-del-repositorio>
+   cd sb-frontend
+   ```
 
-To create a production version of your app:
+2. **Instalar dependencias**:
+   ```bash
+   npm install
+   ```
 
-```sh
-npm run build
-```
+3. **Ejecutar en modo desarrollo**:
+   ```bash
+   npm run dev
+   ```
 
-You can preview the production build with `npm run preview`.
+4. **Abrir en el navegador**:
+   Visita `http://localhost:5173` para ver la aplicación.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## 📂 Estructura del Proyecto
+
+- `src/routes/`: Contiene las páginas y la lógica de enrutamiento por pestañas (Pacientes, Alertas, Reportes, etc.).
+- `src/lib/components/`: Componentes reutilizables como el Sidebar y elementos de la interfaz.
+- `src/lib/stores/`: Gestión de estados globales como preferencias de usuario y configuración.
+- `static/`: Activos estáticos como logos e imágenes.
+
+---
+Desarrollado con ❤️ para mejorar la eficiencia en el cuidado de la salud.
