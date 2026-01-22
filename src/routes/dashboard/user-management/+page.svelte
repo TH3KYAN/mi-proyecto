@@ -550,6 +550,56 @@
         text-decoration: underline;
     }
 
+    /* --- RESPONSIVENESS --- */
+    @media (max-width: 768px) {
+        .page-container {
+            padding: var(--spacing-md);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .toolbar {
+            flex-direction: column-reverse;
+            gap: var(--spacing-sm);
+        }
+
+        .add-user-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .table-header {
+            display: none;
+        }
+
+        .user-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            padding: var(--spacing-lg);
+        }
+
+        .user-info {
+            width: 100%;
+        }
+
+        .user-role {
+            font-size: 0.8125rem;
+        }
+
+        .edit-btn {
+            width: 100%;
+            text-align: center;
+            padding: var(--spacing-sm);
+            background-color: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-gray-200);
+        }
+    }
+
     /* Estilos del Dropdown de Filtro */
     .filter-dropdown {
         position: absolute;
@@ -564,6 +614,15 @@
         width: 200px;
         margin-top: 5px;
     }
+
+    @media (max-width: 768px) {
+        .filter-dropdown {
+            left: 0;
+            right: 0;
+            width: 100%;
+        }
+    }
+
     .filter-group {
         margin-bottom: 0.8rem;
     }
@@ -600,8 +659,10 @@
         border-radius: var(--radius-lg);
         width: 100%;
         max-width: 500px;
+        margin: var(--spacing-md);
+        max-height: 90vh;
+        overflow-y: auto;
         box-shadow: var(--shadow-xl);
-        overflow: hidden;
     }
     .modal-header {
         padding: var(--spacing-lg);
@@ -633,6 +694,13 @@
         grid-template-columns: 1fr 1fr;
         gap: var(--spacing-md);
     }
+
+    @media (max-width: 480px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .form-group label {
         display: block;
         margin-bottom: 6px;
@@ -652,6 +720,17 @@
         display: flex;
         gap: var(--spacing-md);
         align-items: center;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 480px) {
+        .modal-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .modal-footer .spacer {
+            display: none;
+        }
     }
     .spacer {
         flex: 1;

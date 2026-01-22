@@ -12,6 +12,7 @@
         Menu,
         X,
     } from "lucide-svelte";
+    // @ts-ignore
     import { onMount } from "svelte";
 
     $: currentPage = $page.url.pathname; // Página actual
@@ -53,7 +54,8 @@
             id: "patients",
             label: "Pacientes",
             icon: Users,
-            href: "/dashboard/patients",
+            // @ts-ignore
+            href: "/dashboard/patients" || "/dashboard/patients/[id]",
         },
         {
             id: "alerts",
@@ -81,6 +83,7 @@
         },
     ];
 
+    // @ts-ignore
     const settingsItems = [
         {
             id: "settings",

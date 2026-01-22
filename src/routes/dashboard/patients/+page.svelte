@@ -620,7 +620,84 @@
         background-color: var(--color-gray-100);
     }
 
-    /* ESTILOS DEL MODAL (Iguales a los anteriores para consistencia) */
+    /* --- RESPONSIVENESS --- */
+    @media (max-width: 768px) {
+        .patients-container {
+            padding: var(--spacing-md);
+        }
+
+        .header-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+        }
+
+        .add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .toolbar {
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        .filter-select {
+            width: 100%;
+        }
+
+        .table-header {
+            display: none; /* Ocultar cabecera en móvil */
+        }
+
+        .patient-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            padding: var(--spacing-lg);
+            position: relative;
+        }
+
+        .patient-info {
+            width: 100%;
+        }
+
+        .status-badge {
+            margin-top: 4px;
+        }
+
+        .last-reading {
+            width: 100%;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .actions-cell {
+            width: 100%;
+            justify-content: space-between;
+            border-top: 1px solid var(--color-gray-100);
+            padding-top: var(--spacing-md);
+            margin-top: var(--spacing-xs);
+        }
+
+        .view-btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .results-footer {
+            flex-direction: column;
+            gap: var(--spacing-md);
+            text-align: center;
+        }
+    }
+
+    /* ESTILOS DEL MODAL */
     .modal-backdrop {
         position: fixed;
         top: 0;
@@ -639,8 +716,10 @@
         border-radius: var(--radius-lg);
         width: 100%;
         max-width: 500px;
+        margin: var(--spacing-md); /* Margen en móvil */
+        max-height: 90vh;
+        overflow-y: auto;
         box-shadow: var(--shadow-xl);
-        overflow: hidden;
     }
     .modal-header {
         padding: var(--spacing-lg);
@@ -673,6 +752,13 @@
         grid-template-columns: 1fr 1fr;
         gap: var(--spacing-md);
     }
+
+    @media (max-width: 480px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .form-group label {
         display: block;
         margin-bottom: 6px;
@@ -703,6 +789,17 @@
         display: flex;
         gap: var(--spacing-md);
         align-items: center;
+        flex-wrap: wrap; /* Envolver botones en pantallas muy pequeñas */
+    }
+
+    @media (max-width: 480px) {
+        .modal-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .modal-footer .spacer {
+            display: none;
+        }
     }
     .spacer {
         flex: 1;

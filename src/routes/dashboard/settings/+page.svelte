@@ -91,6 +91,15 @@
             margin-left: 0;
             padding: var(--spacing-md);
         }
+
+        .settings-content {
+            padding: var(--spacing-xl);
+        }
+
+        .settings-grid {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+        }
     }
 
     .settings-header {

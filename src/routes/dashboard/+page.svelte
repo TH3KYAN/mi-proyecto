@@ -3,7 +3,7 @@
 </script>
 
 <div class="dashboard-home">
-    <h1 class="page-title">Dashboard Overview</h1>
+    <h1 class="page-title">Panel de control</h1>
 
     <div class="stats-grid">
         <div class="stat-card">
@@ -11,7 +11,7 @@
                 <Users size={24} color="#10b981" />
             </div>
             <div class="stat-info">
-                <div class="stat-label">Total Patients</div>
+                <div class="stat-label">Total de pacientes</div>
                 <div class="stat-value">1,234</div>
             </div>
         </div>
@@ -21,7 +21,7 @@
                 <Activity size={24} color="#f59e0b" />
             </div>
             <div class="stat-info">
-                <div class="stat-label">Critical Alerts</div>
+                <div class="stat-label">Alertas críticas</div>
                 <div class="stat-value">5</div>
             </div>
         </div>
@@ -31,15 +31,15 @@
                 <FileText size={24} color="#3b82f6" />
             </div>
             <div class="stat-info">
-                <div class="stat-label">Reports Generated</div>
+                <div class="stat-label">Reportes generados</div>
                 <div class="stat-value">48</div>
             </div>
         </div>
     </div>
 
     <div class="welcome-section">
-        <h2>Welcome back, Dr. Evelyn Reed</h2>
-        <p>Here's what's happening in your ward today.</p>
+        <h2>Bienvenido, Dr. Evelyn Reed</h2>
+        <p>¿Qué está sucediendo en su ward hoy?</p>
     </div>
 </div>
 

@@ -557,6 +557,75 @@
         color: var(--color-primary);
     }
 
+    /* --- RESPONSIVENESS --- */
+    @media (max-width: 768px) {
+        .page-container {
+            padding: var(--spacing-md);
+        }
+
+        .header-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+        }
+
+        .add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .toolbar {
+            flex-direction: column-reverse;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-btns {
+            width: 100%;
+        }
+
+        .filter-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .table-header {
+            display: none;
+        }
+
+        .alert-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-lg);
+        }
+
+        .patient-name {
+            font-size: 1rem;
+        }
+
+        .alert-details {
+            font-size: 0.8125rem;
+        }
+
+        .actions-cell {
+            width: 100%;
+            justify-content: space-between;
+            border-top: 1px solid var(--color-gray-100);
+            padding-top: var(--spacing-md);
+            margin-top: var(--spacing-xs);
+        }
+
+        .acknowledge-btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+
     /* ESTILOS DEL MODAL */
     .modal-backdrop {
         position: fixed;
@@ -576,8 +645,10 @@
         border-radius: var(--radius-lg);
         width: 100%;
         max-width: 500px;
+        margin: var(--spacing-md);
+        max-height: 90vh;
+        overflow-y: auto;
         box-shadow: var(--shadow-xl);
-        overflow: hidden;
     }
     .modal-header {
         padding: var(--spacing-lg);
@@ -610,6 +681,13 @@
         grid-template-columns: 1fr 1fr;
         gap: var(--spacing-md);
     }
+
+    @media (max-width: 480px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
     .form-group label {
         display: block;
         margin-bottom: 6px;
@@ -636,6 +714,17 @@
         display: flex;
         gap: var(--spacing-md);
         align-items: center;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 480px) {
+        .modal-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .modal-footer .spacer {
+            display: none;
+        }
     }
     .spacer {
         flex: 1;
