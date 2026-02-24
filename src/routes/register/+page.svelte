@@ -1,19 +1,28 @@
 <script lang="ts">
     //Icons
     import { Eye, EyeOff, Activity } from "lucide-svelte";
-
+    import { goto } from '$app/navigation';
+    
     interface FormErrors {
-        fullName?: string;
+        username?: string;
         email?: string;
         password?: string;
         confirmPassword?: string;
+        cedula?: string;
+        nombre?: string;
+        apellido?: string;
+        server?: string;
+
     }
 
     let formData = {
-        fullName: "",
+        username: "",
         email: "",
         password: "",
         confirmPassword: "",
+        cedula: "",
+        nombre: "",
+        apellido: "",
     };
 
     let showPassword = false;
@@ -23,8 +32,8 @@
 
     function validateForm() {
         errors = {};
-        if (!formData.fullName) {
-            errors.fullName = "El nombre es requerido";
+        if (!formData.username) {
+            errors.username = "El nombre de usuario es requerido";
         }
 
         if (!formData.email) {
@@ -38,6 +47,17 @@
         if (formData.password !== formData.confirmPassword) {
             errors.confirmPassword = "Las contraseñas no coinciden";
         }
+        if (!formData.cedula) {
+            errors.cedula = "La cédula es requerida";
+        }
+
+        if (!formData.nombre) {
+            errors.nombre = "El nombre es requerido";
+        }
+
+        if (!formData.apellido) {
+            errors.apellido = "El apellido es requerido";
+        }
 
         return Object.keys(errors).length === 0;
     }
@@ -47,13 +67,45 @@
 
         isLoading = true;
         console.log("Registering:", formData);
+        errors = {};
 
         // Simular registro
-        setTimeout(() => {
+        /*setTimeout(() => {
             isLoading = false;
             window.location.href = "/login";
-        }, 1000);
+        }, 1000);*/
+        
+        // PAYLOAD: Aquí enviamos los datos exactamente como los espera tu CreateUsuario DTO
+        const payload = {
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+            cedula: formData.cedula,
+            nombre: formData.nombre,
+            apellido: formData.apellido
+        };
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                goto("/login?success=true"); 
+            } else {
+                errors.server = result.message || "Error al crear la cuenta";
+            }
+        } catch (err) {
+            errors.server = "Error de conexión con el servidor";
+        } finally {
+            isLoading = false;
+        }
     }
+
 
     function togglePassword() {
         showPassword = !showPassword;
@@ -98,21 +150,66 @@
             <p class="form-description">Llena los detalles para comenzar.</p>
 
             <form on:submit|preventDefault={handleRegister}>
-                <!-- Full Name -->
+            <!-- Nombre -->
                 <div class="form-group">
-                    <label for="fullName" class="form-label"
-                        >Nombre completo</label
-                    >
+                    <label for="nombre" class="form-label">Nombre</label>
                     <input
-                        id="fullName"
+                        id="nombre"
                         type="text"
                         class="form-input"
-                        class:error={errors.fullName}
-                        placeholder="Ingresa tu nombre completo"
-                        bind:value={formData.fullName}
+                        class:error={errors.nombre}
+                        placeholder="Ingresa tu nombre"
+                        bind:value={formData.nombre}
                     />
-                    {#if errors.fullName}
-                        <p class="error-message">{errors.fullName}</p>
+                    {#if errors.nombre}
+                        <p class="error-message">{errors.nombre}</p>
+                    {/if}
+                </div>
+                <!-- Apellido -->
+                <div class="form-group">
+                    <label for="apellido" class="form-label">Apellido</label>
+                    <input
+                        id="apellido"
+                        type="text"
+                        class="form-input"
+                        class:error={errors.apellido}
+                        placeholder="Ingresa tu apellido"
+                        bind:value={formData.apellido}
+                    />
+                    {#if errors.apellido}
+                        <p class="error-message">{errors.apellido}</p>
+                    {/if}
+                </div>
+                <!-- Cedula -->
+                <div class="form-group">
+                    <label for="cedula" class="form-label">Cédula</label>
+                    <input
+                        id="cedula"
+                        type="text"
+                        class="form-input"
+                        class:error={errors.cedula}
+                        placeholder="Ingresa tu cédula"
+                        bind:value={formData.cedula}
+                    />
+                    {#if errors.cedula}
+                        <p class="error-message">{errors.cedula}</p>
+                    {/if}
+                </div>
+                <!-- username -->
+                <div class="form-group">
+                    <label for="username" class="form-label"
+                        >Nombre de usuario</label
+                    >
+                    <input
+                        id="username"
+                        type="text"
+                        class="form-input"
+                        class:error={errors.username}
+                        placeholder="Ingresa tu nombre de usuario"
+                        bind:value={formData.username}
+                    />
+                    {#if errors.username}
+                        <p class="error-message">{errors.username}</p>
                     {/if}
                 </div>
 
@@ -193,7 +290,7 @@
                         <p class="error-message">{errors.confirmPassword}</p>
                     {/if}
                 </div>
-
+                
                 <button
                     type="submit"
                     class="register-button"

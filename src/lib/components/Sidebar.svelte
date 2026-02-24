@@ -1,6 +1,25 @@
 <script>
     import { page } from "$app/stores";
+    import { goto } from "$app/navigation";
 
+    async function handleLogout() {
+        const token = localStorage.getItem('token');
+        try {
+            // 1. Notificar al backend para meter el token en la lista negra
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+        } catch (err) {
+            console.error("Error al cerrar sesión en el servidor:", err);
+        } finally {
+            // 2. SIEMPRE limpiar localstorage y redirigir, aunque el fetch falle
+            localStorage.removeItem('token');
+            goto('/login');
+        }
+    }
     //icons
     import {
         LayoutDashboard,
@@ -56,6 +75,12 @@
             icon: Users,
             // @ts-ignore
             href: "/dashboard/patients" || "/dashboard/patients/[id]",
+        },
+        {
+            id: "consultas",
+            label: "Consultas",
+            icon: FileText,
+            href: "/dashboard/consultas",
         },
         {
             id: "alerts",
@@ -145,13 +170,10 @@
 
     <!-- Settings Section -->
     <div class="settings-section">
-        <button
-            class="logout-btn"
-            on:click={() => (window.location.href = "/login")}
-        >
-            <LogOut size={18} />
-            <span>Cerrar sesión</span>
-        </button>
+        <button on:click={handleLogout} class="logout-btn">
+        <LogOut size={18} />
+        Cerrar Sesión
+    </button>   
     </div>
 </aside>
 

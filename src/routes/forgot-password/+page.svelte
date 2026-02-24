@@ -1,24 +1,53 @@
 <script>
-    // Icons
-    import { ArrowLeft } from "lucide-svelte";
+    import { ArrowLeft, Eye, EyeOff } from "lucide-svelte";
+    import { goto } from '$app/navigation';
 
     let email = "";
+    let cedula = "";
+    let newPassword = "";
+    let confirmPassword = "";
+    
     let isLoading = false;
-    let emailSent = false;
+    let success = false;
+    let message = "";
+    let showPassword = false;
 
     async function handleResetPassword() {
-        if (!email) return;
+        // Validaciones básicas
+        if (newPassword !== confirmPassword) {
+            message = "Las contraseñas no coinciden.";
+            return;
+        }
 
         isLoading = true;
-        console.log("Sending reset email to:", email);
+        message = "";
 
-        setTimeout(() => {
+        try {
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email, 
+                    cedula, 
+                    newPassword 
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                success = true;
+                message = "¡Contraseña actualizada con éxito!";
+                // Redirigir al login tras 2 segundos
+                setTimeout(() => goto("/login"), 2000);
+            } else {
+                message = result.message || "Error al restablecer la contraseña.";
+            }
+        } catch (err) {
+            message = "Error de conexión con el servidor.";
+        } finally {
             isLoading = false;
-            emailSent = true;
-            setTimeout(() => {
-                window.location.href = "/login";
-            }, 2000);
-        }, 700);
+        }
     }
 </script>
 
@@ -28,47 +57,59 @@
             <ArrowLeft size={15} />
             <a href="/login">Volver al Login</a>
         </p>
+        
         <h1 class="title">Restablecer Contraseña</h1>
         <p class="description">
-            Introduce tu dirección de correo electrónico y te enviaremos un
-            enlace para restablecer tu contraseña.
+            Introduce tu correo y tu cédula para validar tu identidad y crear una nueva clave.
         </p>
 
-        {#if emailSent}
-            <div class="success-message">
-                Contraseña restablecida! Revisa tu correo.
+        {#if message}
+            <div class={success ? "success-message" : "error-message"}>
+                {message}
             </div>
         {/if}
 
         <form on:submit|preventDefault={handleResetPassword}>
             <div class="form-group">
-                <label for="email" class="form-label">Correo Electronico</label>
-                <input
-                    id="email"
-                    type="email"
-                    class="form-input"
-                    placeholder="Introduce tu correo electronico"
-                    bind:value={email}
-                    required
-                />
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input id="email" type="email" class="form-input" placeholder="usuario@correo.com"
+                    bind:value={email} required />
             </div>
 
-            <button
-                type="submit"
-                class="submit-button"
-                disabled={isLoading || emailSent}
-            >
-                {isLoading
-                    ? "Enviando..."
-                    : emailSent
-                      ? "Email Enviado"
-                      : "Enviar Enlace de Restablecimiento"}
+            <div class="form-group">
+                <label for="cedula" class="form-label">Cédula</label>
+                <input id="cedula" type="text" class="form-input" placeholder="Ingresa tu cédula registrada"
+                    bind:value={cedula} required />
+            </div>
+
+            <hr class="separator" />
+
+            <div class="form-group">
+                <label for="newPassword" class="form-label">Nueva Contraseña</label>
+                <div class="input-wrapper">
+                    <input id="newPassword" type={showPassword ? "text" : "password"} 
+                        class="form-input" bind:value={newPassword} required minlength="8" />
+                    <button type="button" class="toggle-btn" on:click={() => showPassword = !showPassword}>
+                        {#if showPassword}<Eye size={18}/>{:else}<EyeOff size={18}/>{/if}
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                <input id="confirmPassword" type="password" class="form-input"
+                    bind:value={confirmPassword} required />
+            </div>
+
+            <button type="submit" class="submit-button" disabled={isLoading || success}>
+                {isLoading ? "Procesando..." : "Actualizar Contraseña"}
             </button>
         </form>
     </div>
 </div>
 
 <style>
+    /* ... Tus estilos anteriores ... */
     .container {
         display: flex;
         min-height: 100vh;
@@ -162,4 +203,37 @@
         text-decoration: none;
         font-weight: 600;
     }
+    .separator {
+        border: 0;
+        border-top: 1px solid var(--color-gray-300);
+        margin: var(--spacing-xl) 0;
+    }
+
+    .error-message {
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        padding: var(--spacing-md);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-lg);
+        text-align: center;
+        font-size: 0.875rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .toggle-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--color-gray-500);
+    }
+
+    /* Reutiliza el success-message que ya tenías */
 </style>

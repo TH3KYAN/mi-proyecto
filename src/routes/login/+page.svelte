@@ -1,26 +1,42 @@
 <script>
     //Icons
     import { Activity, Lock, Mail, Eye, EyeOff } from "lucide-svelte";
-
+    import{goto} from '$app/navigation';
     // Variables reactivas para el formulario
     let email = "";
     let password = "";
     let showPassword = false;
     let isLoading = false;
+    let errorMessage = "";
 
     // Función para manejar el login
     async function handleLogin() {
         isLoading = true;
+        errorMessage = "";
 
-        // Aquí irá la lógica de autenticación
-        console.log("Login con:", { email, password });
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
 
-        // Simular llamada a API
-        setTimeout(() => {
+            const result = await response.json();
+
+            if (response.ok && result.token) {
+                // GUARDAR EL TOKEN: Esto es vital para las siguientes peticiones
+                localStorage.setItem('token', result.token);
+                
+                // Redirigir al dashboard o inicio
+                goto('/dashboard');
+            } else {
+                errorMessage = result.message || "Credenciales inválidas";
+            }
+        } catch (err) {
+            errorMessage = "Error de conexión con el servidor";
+        } finally {
             isLoading = false;
-            // Redirigir al dashboard
-            window.location.href = "/dashboard";
-        }, 1000);
+        }
     }
 
     // Función para toggle de contraseña
