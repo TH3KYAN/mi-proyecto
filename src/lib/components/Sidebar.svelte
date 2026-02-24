@@ -3,21 +3,21 @@
     import { goto } from "$app/navigation";
 
     async function handleLogout() {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         try {
             // 1. Notificar al backend para meter el token en la lista negra
-            await fetch('/api/auth/logout', {
-                method: 'POST',
+            await fetch("/api/auth/logout", {
+                method: "POST",
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                },
             });
         } catch (err) {
             console.error("Error al cerrar sesión en el servidor:", err);
         } finally {
             // 2. SIEMPRE limpiar localstorage y redirigir, aunque el fetch falle
-            localStorage.removeItem('token');
-            goto('/login');
+            localStorage.removeItem("token");
+            goto("/login");
         }
     }
     //icons
@@ -37,30 +37,35 @@
     $: currentPage = $page.url.pathname; // Página actual
     console.log(currentPage);
 
-    // Valores por defecto del usuario (se reemplazarán con datos de la BD)
-    let userName = "Dr. Evelyn Reed";
-    let userRole = "Administrator";
+    let userName = "";
+    let userRole = "";
     let isMobileMenuOpen = false;
 
     function toggleMobileMenu() {
         isMobileMenuOpen = !isMobileMenuOpen;
     }
 
-    // TODO: Implementar cuando se conecte a la base de datos
-    // async function loadUserData() {
-    //     try {
-    //         const response = await fetch('/api/user/profile');
-    //         const data = await response.json();
-    //         userName = data.fullName;
-    //         userRole = data.role;
-    //     } catch (error) {
-    //         console.error('Error loading user data:', error);
-    //     }
-    // }
+    async function loadUserData() {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch("/api/auth/me", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.status === 401) {
+                goto("/login");
+                return;
+            }
+            const data = await res.json();
+            userName = `${data.nombre} ${data.apellido}`;
+            userRole = data.username || "Usuario";
+        } catch (error) {
+            console.error("Error cargando datos del usuario:", error);
+        }
+    }
 
-    // onMount(() => {
-    //     loadUserData();
-    // });
+    onMount(() => {
+        loadUserData();
+    });
 
     const menuItems = [
         {
@@ -171,9 +176,9 @@
     <!-- Settings Section -->
     <div class="settings-section">
         <button on:click={handleLogout} class="logout-btn">
-        <LogOut size={18} />
-        Cerrar Sesión
-    </button>   
+            <LogOut size={18} />
+            Cerrar Sesión
+        </button>
     </div>
 </aside>
 
