@@ -1,12 +1,32 @@
 <script>
+    // @ts-nocheck
+
     import { onMount, onDestroy } from "svelte";
     import { Activity, Thermometer, Clock, RefreshCw } from "lucide-svelte";
 
+    /**
+     * @type {string | any[] | null | undefined}
+     */
     let dispositivos = [];
-    let dispositivoSeleccionado = null;
+    let dispositivoSeleccionado = "";
+    /**
+     * @type {any[] | null | undefined}
+     */
+    let pacientes = [];
+    let pacienteSeleccionado = "";
+    /**
+     * @type {{ timestamp: any; data: { temp1: number | undefined; temp2: number | undefined; }; } | null}
+     */
+    let isCapturing = false;
     let datosDispositivo = null;
     let cargando = true;
+    /**
+     * @type {string | null}
+     */
     let error = null;
+    /**
+     * @type {number | any}
+     */
     let intervaloPoll;
 
     // Obtener la lista de todos los dispositivos conectados
@@ -17,18 +37,31 @@
             const res = await fetch("/api/dispositivos");
             if (res.ok) {
                 dispositivos = await res.json();
-
-                // Si hay dispositivos y no hemos seleccionado uno, seleccionamos el primero por defecto
-                if (dispositivos.length > 0 && !dispositivoSeleccionado) {
-                    seleccionarDispositivo(dispositivos[0].mac);
-                }
             } else {
                 throw new Error("No se pudieron cargar los dispositivos");
             }
         } catch (err) {
+            // @ts-ignore
             error = err.message;
         } finally {
             cargando = false;
+        }
+    }
+
+    // Obtener la lista de pacientes registrados
+    async function cargarPacientes() {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch("/api/pacientes", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (res.ok) {
+                pacientes = await res.json();
+            }
+        } catch (err) {
+            console.error("Error al cargar pacientes:", err);
         }
     }
 
@@ -43,7 +76,7 @@
             if (res.ok) {
                 datosDispositivo = await res.json();
             } else if (res.status === 404) {
-                // Dispositivo ya no dispobible
+                // Dispositivo ya no disponible
                 datosDispositivo = null;
             }
         } catch (err) {
@@ -51,18 +84,31 @@
         }
     }
 
+    /**
+     * @param {string} mac
+     */
     function seleccionarDispositivo(mac) {
         dispositivoSeleccionado = mac;
         datosDispositivo = null; // Limpiar datos anteriores mientras carga
-        actualizarDatosDispositivo();
+    }
 
-        // Reiniciar el polling
-        if (intervaloPoll) clearInterval(intervaloPoll);
-        intervaloPoll = setInterval(actualizarDatosDispositivo, 2000); // Actualizar cada 2 segundos
+    function toggleCaptura() {
+        if (isCapturing) {
+            // Detener captura
+            if (intervaloPoll) clearInterval(intervaloPoll);
+            isCapturing = false;
+        } else {
+            // Iniciar captura
+            if (!dispositivoSeleccionado || !pacienteSeleccionado) return;
+            isCapturing = true;
+            actualizarDatosDispositivo();
+            intervaloPoll = setInterval(actualizarDatosDispositivo, 2000);
+        }
     }
 
     onMount(() => {
         cargarDispositivos();
+        cargarPacientes();
     });
 
     onDestroy(() => {
@@ -70,6 +116,9 @@
     });
 
     // Función auxiliar para formatear la fecha
+    /**
+     * @param {string | number | Date} timestamp
+     */
     function formatearFecha(timestamp) {
         if (!timestamp) return "No disponible";
         return new Date(timestamp).toLocaleString("es-ES", {
@@ -99,131 +148,156 @@
         </button>
     </header>
 
-    {#if cargando && dispositivos.length === 0}
-        <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Buscando dispositivos conectados...</p>
-        </div>
-    {:else if error}
-        <div class="error-state">
-            <p>{error}</p>
-            <button class="btn-primary" on:click={cargarDispositivos}
-                >Intentar nuevamente</button
+    <div class="monitor-controls panel">
+        <div class="control-group">
+            <label for="dispositivo" class="control-label"
+                >Dispositivo de Monitoreo</label
             >
-        </div>
-    {:else if dispositivos.length === 0}
-        <div class="empty-state">
-            <Activity size={48} class="empty-icon" />
-            <h3>No se encontraron dispositivos</h3>
-            <p>
-                Asegúrate de que los monitores estén encendidos y transmitiendo
-                datos vía MQTT.
-            </p>
-            <button class="btn-primary" on:click={cargarDispositivos}
-                >Volver a buscar</button
+            <select
+                id="dispositivo"
+                bind:value={dispositivoSeleccionado}
+                class="form-select"
+                disabled={isCapturing}
             >
-        </div>
-    {:else}
-        <div class="dashboard-grid">
-            <!-- Panel Lateral: Lista de Dispositivos -->
-            <aside class="device-selector panel">
-                <h2>Dispositivos Conectados</h2>
-                <div class="device-list">
-                    {#each dispositivos as dispositivo}
-                        <button
-                            class="device-card {dispositivoSeleccionado ===
-                            dispositivo.mac
-                                ? 'active'
-                                : ''}"
-                            on:click={() =>
-                                seleccionarDispositivo(dispositivo.mac)}
-                        >
-                            <div class="device-icon">
-                                <Activity size={20} />
-                            </div>
-                            <div class="device-info">
-                                <span class="device-name"
-                                    >Monitor {dispositivo.mac.slice(-4)}</span
-                                >
-                                <span class="device-mac">{dispositivo.mac}</span
-                                >
-                            </div>
-                            {#if dispositivoSeleccionado === dispositivo.mac}
-                                <div class="active-indicator"></div>
-                            {/if}
-                        </button>
-                    {/each}
-                </div>
-            </aside>
-
-            <!-- Panel Principal: Datos del Dispositivo -->
-            <main class="device-data panel">
-                {#if !dispositivoSeleccionado}
-                    <div class="placeholder-state">
-                        <Activity size={48} />
-                        <p>
-                            Selecciona un dispositivo para ver sus métricas en
-                            vivo.
-                        </p>
-                    </div>
-                {:else if !datosDispositivo}
-                    <div class="loading-state">
-                        <div class="spinner"></div>
-                        <p>Obteniendo primeras lecturas...</p>
-                    </div>
+                {#if dispositivos.length === 0}
+                    <option value="">no hay dispositivos enlazados</option>
                 {:else}
-                    <div class="data-header">
-                        <div>
-                            <h2>Lecturas en Vivo</h2>
-                            <p class="mac-subtitle">
-                                Dispositivo: {dispositivoSeleccionado}
-                            </p>
-                        </div>
-                        <div class="last-update">
-                            <Clock size={16} />
-                            <span
-                                >Última actualización: {formatearFecha(
-                                    datosDispositivo.timestamp,
-                                )}</span
-                            >
-                        </div>
-                    </div>
-
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-icon primary">
-                                <Thermometer size={24} color="white" />
-                            </div>
-                            <div class="metric-content">
-                                <span class="metric-label">Temperatura 1</span>
-                                <div class="metric-value">
-                                    {datosDispositivo.data.temp1 !== undefined
-                                        ? datosDispositivo.data.temp1.toFixed(1)
-                                        : "--.-"}
-                                    <span class="unit">°C</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="metric-card">
-                            <div class="metric-icon secondary">
-                                <Thermometer size={24} color="white" />
-                            </div>
-                            <div class="metric-content">
-                                <span class="metric-label">Temperatura 2</span>
-                                <div class="metric-value">
-                                    {datosDispositivo.data.temp2 !== undefined
-                                        ? datosDispositivo.data.temp2.toFixed(1)
-                                        : "--.-"}
-                                    <span class="unit">°C</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <option value="" disabled>Seleccione un dispositivo</option>
+                    {#each dispositivos as dispositivo}
+                        <option value={dispositivo.mac}>
+                            Monitor {dispositivo.mac.slice(-4)} ({dispositivo.mac})
+                        </option>
+                    {/each}
                 {/if}
-            </main>
+            </select>
         </div>
-    {/if}
+
+        <div class="control-group">
+            <label for="paciente" class="control-label">Paciente Asignado</label
+            >
+            <select
+                id="paciente"
+                bind:value={pacienteSeleccionado}
+                class="form-select"
+                disabled={isCapturing}
+            >
+                <option value="" disabled>Seleccione un paciente</option>
+                {#if pacientes.length === 0}
+                    <option value="" disabled
+                        >No hay pacientes registrados</option
+                    >
+                {:else}
+                    {#each pacientes as paciente}
+                        <option value={paciente.cedula}>
+                            {paciente.nombre}
+                            {paciente.apellido} - {paciente.cedula}
+                        </option>
+                    {/each}
+                {/if}
+            </select>
+        </div>
+
+        <div class="control-group action-group">
+            <!-- svelte-ignore a11y_label_has_associated_control -->
+            <label class="control-label">&nbsp;</label>
+            <button
+                class="btn-capture {isCapturing ? 'btn-stop' : 'btn-start'}"
+                on:click={toggleCaptura}
+                disabled={!dispositivoSeleccionado || !pacienteSeleccionado}
+            >
+                {#if isCapturing}
+                    Detener captura
+                {:else}
+                    Capturar datos
+                {/if}
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel Principal: Datos del Dispositivo -->
+    <main class="device-data panel">
+        {#if error}
+            <div class="error-state">
+                <p>{error}</p>
+                <button class="btn-primary" on:click={cargarDispositivos}
+                    >Intentar nuevamente</button
+                >
+            </div>
+        {:else if !isCapturing}
+            <div class="placeholder-state">
+                <Activity size={48} />
+                <p>
+                    Seleccione un paciente y un dispositivo, luego presione <strong
+                        >"Capturar datos"</strong
+                    >.
+                </p>
+            </div>
+        {:else if !datosDispositivo}
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Iniciando recepción de datos...</p>
+            </div>
+        {:else}
+            <div class="data-header">
+                <div>
+                    <h2>Lecturas en Vivo</h2>
+                    <p class="mac-subtitle">
+                        Dispositivo: {dispositivoSeleccionado}
+                        {#if pacienteSeleccionado}
+                            <span class="patient-tag">
+                                | Paciente: {pacientes.find(
+                                    (p) => p.cedula === pacienteSeleccionado,
+                                )?.nombre}
+                                {pacientes.find(
+                                    (p) => p.cedula === pacienteSeleccionado,
+                                )?.apellido}
+                            </span>
+                        {/if}
+                    </p>
+                </div>
+                <div class="last-update">
+                    <Clock size={16} />
+                    <span
+                        >Última actualización: {formatearFecha(
+                            datosDispositivo.timestamp,
+                        )}</span
+                    >
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon primary">
+                        <Thermometer size={24} color="white" />
+                    </div>
+                    <div class="metric-content">
+                        <span class="metric-label">Temperatura 1</span>
+                        <div class="metric-value">
+                            {datosDispositivo.data.temp1 !== undefined
+                                ? datosDispositivo.data.temp1.toFixed(1)
+                                : "--.-"}
+                            <span class="unit">°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon secondary">
+                        <Thermometer size={24} color="white" />
+                    </div>
+                    <div class="metric-content">
+                        <span class="metric-label">Temperatura 2</span>
+                        <div class="metric-value">
+                            {datosDispositivo.data.temp2 !== undefined
+                                ? datosDispositivo.data.temp2.toFixed(1)
+                                : "--.-"}
+                            <span class="unit">°C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {/if}
+    </main>
 </div>
 
 <style>
@@ -282,10 +356,6 @@
         cursor: not-allowed;
     }
 
-    .spin {
-        animation: spin 1s linear infinite;
-    }
-
     @keyframes spin {
         100% {
             transform: rotate(360deg);
@@ -311,7 +381,6 @@
     /* Estados Varios */
     .loading-state,
     .error-state,
-    .empty-state,
     .placeholder-state {
         display: flex;
         flex-direction: column;
@@ -334,24 +403,88 @@
         margin-bottom: 1rem;
     }
 
-    .empty-icon,
-    .placeholder-state :global(svg) {
-        color: #94a3b8;
-        margin-bottom: 1rem;
-    }
-
-    /* Grid Layout */
-    .dashboard-grid {
+    /* Control Section */
+    .monitor-controls {
         display: grid;
-        grid-template-columns: 300px 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 2rem;
-        align-items: start;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
 
-    @media (max-width: 900px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .control-label {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+
+    .form-select {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        background-color: #f8fafc;
+        color: #1e293b;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .action-group {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .btn-capture {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        color: white;
+    }
+
+    .btn-capture:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+    }
+
+    .btn-start {
+        background: #10b981;
+    }
+
+    .btn-start:hover:not(:disabled) {
+        background: #059669;
+    }
+
+    .btn-stop {
+        background: #ef4444;
+    }
+
+    .btn-stop:hover {
+        background: #dc2626;
+    }
+
+    .patient-tag {
+        color: #10b981;
+        font-weight: 600;
+        margin-left: 0.5rem;
     }
 
     .panel {
@@ -361,82 +494,6 @@
             0 4px 6px -1px rgba(0, 0, 0, 0.05),
             0 2px 4px -2px rgba(0, 0, 0, 0.05);
         padding: 1.5rem;
-    }
-
-    .panel h2 {
-        font-size: 1.25rem;
-        margin: 0 0 1.5rem 0;
-        color: #1e293b;
-    }
-
-    /* Selector de Dispositivos */
-    .device-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .device-card {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.75rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-align: left;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .device-card:hover {
-        background: #f1f5f9;
-        border-color: #cbd5e1;
-    }
-
-    .device-card.active {
-        background: rgba(16, 185, 129, 0.05);
-        border-color: rgba(16, 185, 129, 0.3);
-    }
-
-    .device-icon {
-        background: white;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        color: #64748b;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-
-    .device-card.active .device-icon {
-        color: #10b981;
-    }
-
-    .device-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .device-name {
-        font-weight: 600;
-        color: #334155;
-    }
-
-    .device-mac {
-        font-size: 0.8rem;
-        color: #94a3b8;
-        font-family: monospace;
-    }
-
-    .active-indicator {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background: #10b981;
-        border-radius: 4px 0 0 4px;
     }
 
     /* Area de Datos */
