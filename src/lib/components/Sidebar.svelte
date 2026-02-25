@@ -24,9 +24,8 @@
     import {
         LayoutDashboard,
         Users,
-        Bell,
         FileText,
-        Settings,
+        Activity,
         LogOut,
         Menu,
         X,
@@ -82,44 +81,10 @@
             href: "/dashboard/patients" || "/dashboard/patients/[id]",
         },
         {
-            id: "consultas",
-            label: "Consultas",
-            icon: FileText,
-            href: "/dashboard/consultas",
-        },
-        {
-            id: "alerts",
-            label: "Alertas",
-            icon: Bell,
-            href: "/dashboard/alerts",
-        },
-        {
-            id: "reports",
-            label: "Reportes",
-            icon: FileText,
-            href: "/dashboard/reports",
-        },
-        {
-            id: "user-management",
-            label: "Gestión de usuarios",
-            icon: Users,
-            href: "/dashboard/user-management",
-        },
-        {
-            id: "general",
-            label: "General",
-            icon: Settings,
-            href: "/dashboard/settings",
-        },
-    ];
-
-    // @ts-ignore
-    const settingsItems = [
-        {
-            id: "settings",
-            label: "Configuración",
-            icon: Settings,
-            href: "/dashboard/settings",
+            id: "monitores",
+            label: "Monitores",
+            icon: Activity,
+            href: "/dashboard/monitores",
         },
     ];
 </script>

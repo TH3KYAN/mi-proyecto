@@ -8,7 +8,8 @@
         Trash2,
         Save,
         Edit2,
-        Activity,
+        List,
+        ClipboardPlus,
         User,
     } from "lucide-svelte";
 
@@ -206,12 +207,24 @@
                             <Trash2 size={18} />
                         </button>
                         <button
-                            class="icon-btn vitals"
-                            title="Ver Vitales"
+                            class="icon-btn list"
+                            title="Ver Consultas"
                             on:click={() =>
-                                goto(`/dashboard/patients/${patient.cedula}`)}
+                                goto(
+                                    `/dashboard/patients/${patient.cedula}/consultas`,
+                                )}
                         >
-                            <Activity size={18} />
+                            <List size={18} />
+                        </button>
+                        <button
+                            class="icon-btn add"
+                            title="Añadir Consulta"
+                            on:click={() =>
+                                goto(
+                                    `/dashboard/patients/${patient.cedula}/consultas/nueva`,
+                                )}
+                        >
+                            <ClipboardPlus size={18} />
                         </button>
                     </div>
                 </div>
@@ -416,9 +429,13 @@
         background-color: rgba(239, 68, 68, 0.1);
         color: var(--color-error);
     }
-    .icon-btn.vitals:hover {
+    .icon-btn.list:hover {
         background-color: rgba(16, 185, 129, 0.1);
         color: var(--color-primary);
+    }
+    .icon-btn.add:hover {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: #f59e0b; /* Ambar para destacar creación */
     }
 
     .empty-state {
