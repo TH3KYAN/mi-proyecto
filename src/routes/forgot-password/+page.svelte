@@ -1,12 +1,12 @@
 <script>
     import { ArrowLeft, Eye, EyeOff } from "lucide-svelte";
-    import { goto } from '$app/navigation';
+    import { goto } from "$app/navigation";
 
     let email = "";
     let cedula = "";
     let newPassword = "";
     let confirmPassword = "";
-    
+
     let isLoading = false;
     let success = false;
     let message = "";
@@ -23,14 +23,14 @@
         message = "";
 
         try {
-            const response = await fetch('/api/auth/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    email, 
-                    cedula, 
-                    newPassword 
-                })
+            const response = await fetch("/api/auth/forgot-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email,
+                    cedula,
+                    newPassword,
+                }),
             });
 
             const result = await response.json();
@@ -41,7 +41,8 @@
                 // Redirigir al login tras 2 segundos
                 setTimeout(() => goto("/login"), 2000);
             } else {
-                message = result.message || "Error al restablecer la contraseña.";
+                message =
+                    result.message || "Error al restablecer la contraseña.";
             }
         } catch (err) {
             message = "Error de conexión con el servidor.";
@@ -57,10 +58,11 @@
             <ArrowLeft size={15} />
             <a href="/login">Volver al Login</a>
         </p>
-        
+
         <h1 class="title">Restablecer Contraseña</h1>
         <p class="description">
-            Introduce tu correo y tu cédula para validar tu identidad y crear una nueva clave.
+            Introduce tu correo y tu cédula para validar tu identidad y crear
+            una nueva clave.
         </p>
 
         {#if message}
@@ -72,36 +74,75 @@
         <form on:submit|preventDefault={handleResetPassword}>
             <div class="form-group">
                 <label for="email" class="form-label">Correo Electrónico</label>
-                <input id="email" type="email" class="form-input" placeholder="usuario@correo.com"
-                    bind:value={email} required />
+                <input
+                    id="email"
+                    type="email"
+                    class="form-input"
+                    placeholder="usuario@correo.com"
+                    bind:value={email}
+                    required
+                />
             </div>
 
             <div class="form-group">
                 <label for="cedula" class="form-label">Cédula</label>
-                <input id="cedula" type="text" class="form-input" placeholder="Ingresa tu cédula registrada"
-                    bind:value={cedula} required />
+                <input
+                    id="cedula"
+                    type="text"
+                    class="form-input"
+                    placeholder="Ingresa tu cédula registrada"
+                    bind:value={cedula}
+                    required
+                />
             </div>
 
             <hr class="separator" />
 
             <div class="form-group">
-                <label for="newPassword" class="form-label">Nueva Contraseña</label>
+                <label for="newPassword" class="form-label"
+                    >Nueva Contraseña</label
+                >
                 <div class="input-wrapper">
-                    <input id="newPassword" type={showPassword ? "text" : "password"} 
-                        class="form-input" bind:value={newPassword} required minlength="8" />
-                    <button type="button" class="toggle-btn" on:click={() => showPassword = !showPassword}>
-                        {#if showPassword}<Eye size={18}/>{:else}<EyeOff size={18}/>{/if}
+                    <input
+                        id="newPassword"
+                        type={showPassword ? "text" : "password"}
+                        class="form-input"
+                        bind:value={newPassword}
+                        required
+                        minlength="8"
+                    />
+                    <button
+                        type="button"
+                        class="toggle-btn"
+                        on:click={() => (showPassword = !showPassword)}
+                    >
+                        {#if showPassword}<Eye size={18} />{:else}<EyeOff
+                                size={18}
+                            />{/if}
                     </button>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
-                <input id="confirmPassword" type="password" class="form-input"
-                    bind:value={confirmPassword} required />
+                <label for="confirmPassword" class="form-label"
+                    >Confirmar Contraseña</label
+                >
+                <div class="input-wrapper">
+                    <input
+                        id="confirmPassword"
+                        type={showPassword ? "text" : "password"}
+                        class="form-input"
+                        bind:value={confirmPassword}
+                        required
+                    />
+                </div>
             </div>
 
-            <button type="submit" class="submit-button" disabled={isLoading || success}>
+            <button
+                type="submit"
+                class="submit-button"
+                disabled={isLoading || success}
+            >
                 {isLoading ? "Procesando..." : "Actualizar Contraseña"}
             </button>
         </form>
@@ -109,7 +150,6 @@
 </div>
 
 <style>
-    /* ... Tus estilos anteriores ... */
     .container {
         display: flex;
         min-height: 100vh;
@@ -156,6 +196,12 @@
         padding: var(--spacing-sm) var(--spacing-md);
         border: 1px solid var(--color-gray-300);
         border-radius: var(--radius-md);
+    }
+
+    /* Ocultar el icono de ojo nativo de los navegadores (Edge/Chrome) */
+    .form-input::-ms-reveal,
+    .form-input::-ms-clear {
+        display: none;
     }
 
     .submit-button {

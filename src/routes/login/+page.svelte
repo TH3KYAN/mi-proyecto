@@ -1,7 +1,17 @@
 <script>
+    // @ts-nocheck
+
     //Icons
-    import { Activity, Lock, Mail, Eye, EyeOff } from "lucide-svelte";
-    import{goto} from '$app/navigation';
+    import {
+        Activity,
+        Lock,
+        Mail,
+        Eye,
+        EyeOff,
+        CircleAlert,
+    } from "lucide-svelte";
+    import { goto } from "$app/navigation";
+
     // Variables reactivas para el formulario
     let email = "";
     let password = "";
@@ -15,20 +25,20 @@
         errorMessage = "";
 
         try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+            const response = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
             });
 
             const result = await response.json();
 
             if (response.ok && result.token) {
-                // GUARDAR EL TOKEN: Esto es vital para las siguientes peticiones
-                localStorage.setItem('token', result.token);
-                
+                // Guardar el token
+                localStorage.setItem("token", result.token);
+
                 // Redirigir al dashboard o inicio
-                goto('/dashboard');
+                goto("/dashboard");
             } else {
                 errorMessage = result.message || "Credenciales inválidas";
             }
@@ -82,6 +92,13 @@
             <p class="form-description">
                 Por favor, ingresa tus datos para acceder a tu dashboard.
             </p>
+
+            {#if errorMessage}
+                <div class="error-message" role="alert">
+                    <span class="error-icon"><CircleAlert size={20} /></span>
+                    {errorMessage}
+                </div>
+            {/if}
 
             <form on:submit|preventDefault={handleLogin}>
                 <!-- Campo Email -->
@@ -260,6 +277,12 @@
         transition: all 0.2s;
     }
 
+    /* Ocultar el icono de ojo nativo de los navegadores (Edge/Chrome) */
+    .form-input::-ms-reveal,
+    .form-input::-ms-clear {
+        display: none;
+    }
+
     .form-input:focus {
         outline: none;
         border-color: var(--color-primary);
@@ -344,6 +367,45 @@
             display: flex;
             align-items: center;
             margin-bottom: var(--spacing-md);
+        }
+    }
+
+    .error-message {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        padding: var(--spacing-md);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-lg);
+        font-size: 0.875rem;
+        font-weight: 500;
+        animation: shake 0.4s ease-in-out;
+    }
+
+    .error-icon {
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    @keyframes shake {
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+        20% {
+            transform: translateX(-6px);
+        }
+        40% {
+            transform: translateX(6px);
+        }
+        60% {
+            transform: translateX(-4px);
+        }
+        80% {
+            transform: translateX(4px);
         }
     }
 </style>
