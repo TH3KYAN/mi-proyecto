@@ -11,9 +11,7 @@
 
     // Estado del formulario
     let formData = {
-        motivo: "",
-        diagnostico: "",
-        tratamiento: "",
+        descripcion: "",
     };
 
     onMount(async () => {
@@ -38,8 +36,8 @@
     }
 
     async function handleSubmit() {
-        if (!formData.motivo) {
-            alert("El motivo es obligatorio");
+        if (!formData.descripcion.trim()) {
+            alert("La descripción es obligatoria");
             return;
         }
 
@@ -47,10 +45,9 @@
         try {
             const token = localStorage.getItem("token");
 
-            // Requerimiento backend: enviar 'cedula_paciente' incluido en el body
+            // Requerimiento backend: enviar 'descripcion'
             const bodyData = {
-                ...formData,
-                cedula_paciente: cedula,
+                descripcion: formData.descripcion.trim(),
             };
 
             const res = await fetch(`/api/pacientes/${cedula}/consultas`, {
@@ -109,35 +106,13 @@
     <div class="form-container">
         <form on:submit|preventDefault={handleSubmit} class="consulta-form">
             <div class="form-group required">
-                <label for="motivo">Motivo de la Consulta</label>
+                <label for="descripcion">Descripción de la Consulta</label>
                 <textarea
-                    id="motivo"
-                    bind:value={formData.motivo}
-                    placeholder="Describa el motivo por el cual el paciente acude a la consulta"
+                    id="descripcion"
+                    bind:value={formData.descripcion}
+                    placeholder="Ingrese el detalle de la consulta médica..."
                     required
-                    rows="3"
-                    class="input textarea"
-                ></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="diagnostico">Diagnóstico</label>
-                <textarea
-                    id="diagnostico"
-                    bind:value={formData.diagnostico}
-                    placeholder="Diagnóstico médico establecido (opcional si aún no está definido)"
-                    rows="3"
-                    class="input textarea"
-                ></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="tratamiento">Tratamiento Indicado</label>
-                <textarea
-                    id="tratamiento"
-                    bind:value={formData.tratamiento}
-                    placeholder="Medicamentos, indicaciones, reposo, etc. (opcional)"
-                    rows="4"
+                    rows="10"
                     class="input textarea"
                 ></textarea>
             </div>
@@ -155,7 +130,7 @@
                 <button
                     type="submit"
                     class="btn btn-primary"
-                    disabled={isLoading || !formData.motivo}
+                    disabled={isLoading || !formData.descripcion.trim()}
                 >
                     <Save size={18} />
                     {isLoading ? "Guardando..." : "Guardar Consulta"}

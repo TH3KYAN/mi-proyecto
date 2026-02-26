@@ -13,7 +13,7 @@
         User,
     } from "lucide-svelte";
 
-    // 1. Definición de Interfaces (Elimina errores de tipo 'any')
+    // Definición de Interfaces (Elimina errores de tipo 'any')
     interface Paciente {
         cedula: string;
         nombre: string;
@@ -22,13 +22,14 @@
         fecha_registro?: string;
     }
 
-    // 2. Estado de la página
+    // Estado de la página
     let patients: Paciente[] = [];
     let searchQuery: string = "";
     let showModal: boolean = false;
     let isEditing: boolean = false;
     let isLoading: boolean = false;
     let cedulaOriginal: string = ""; // Vital para editar/eliminar si se cambia la cédula
+    let errorMessage: string = "";
 
     let formData: Paciente = {
         cedula: "",
@@ -37,9 +38,10 @@
         fecha_nacimiento: "",
     };
 
-    // 3. Carga de datos
+    // Carga de datos
     onMount(loadPatients);
 
+    // Carga de datos
     async function loadPatients(): Promise<void> {
         try {
             const token = localStorage.getItem("token");
@@ -66,7 +68,7 @@
         }
     }
 
-    // 4. Lógica de Modal (Corrige errores de tus imágenes 5, 6, 7, 8 y 9)
+    // Abre el modal para crear un nuevo paciente
     function openCreateModal(): void {
         isEditing = false;
         formData = {
@@ -76,22 +78,38 @@
             fecha_nacimiento: "",
         };
         showModal = true;
+        errorMessage = "";
     }
 
+    // Abre el modal para editar un paciente
     function openEditModal(patient: Paciente): void {
         isEditing = true;
-        cedulaOriginal = patient.cedula; // Guardamos la llave primaria actual
+        cedulaOriginal = patient.cedula;
         formData = { ...patient };
         showModal = true;
+        errorMessage = "";
     }
 
-    function closeModal(): void {
-        showModal = false;
-    }
-
-    // 5. Acciones (Corrige error de Imagen 10)
+    // Acciones
     async function handleSavePatient(): Promise<void> {
-        if (!formData.cedula || !formData.nombre) return;
+        const { cedula, nombre, apellido, fecha_nacimiento } = formData;
+
+        if (
+            !cedula?.trim() ||
+            !nombre?.trim() ||
+            !apellido?.trim() ||
+            !fecha_nacimiento
+        ) {
+            errorMessage = "Todos los campos son obligatorios.";
+            return;
+        }
+
+        if (/\D/.test(cedula.trim())) {
+            errorMessage =
+                "La cédula no puede contener letras ni caracteres especiales.";
+            return;
+        }
+        errorMessage = "";
         isLoading = true;
 
         try {
@@ -101,26 +119,47 @@
                 ? `/api/pacientes/${cedulaOriginal}`
                 : "/api/pacientes";
 
+            // Filtramos el cuerpo para PATCH para no enviar campos innecesarios o protegidos
+            const body = isEditing
+                ? {
+                      nombre: nombre.trim(),
+                      apellido: apellido.trim(),
+                      fecha_nacimiento,
+                  }
+                : {
+                      ...formData,
+                      cedula: cedula.trim(),
+                      nombre: nombre.trim(),
+                      apellido: apellido.trim(),
+                  };
+
             const res = await fetch(url, {
                 method,
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(body),
             });
 
-            if (res.ok) {
+            const result = await res.json();
+
+            if (res.ok && result.type !== "error") {
                 await loadPatients();
                 closeModal();
+            } else {
+                errorMessage =
+                    result.message || "Error al guardar el paciente.";
             }
         } catch (error) {
             console.error("Error al guardar:", error);
+            errorMessage = "Error de comunicación con el servidor.";
         } finally {
             isLoading = false;
         }
     }
 
+    // Elimina un paciente
     async function handleDeletePatient(cedula: string): Promise<void> {
         if (!confirm("¿Está seguro de eliminar este paciente?")) return;
 
@@ -148,6 +187,11 @@
             p.apellido.toLowerCase().includes(searchQuery.toLowerCase()) ||
             p.cedula.includes(searchQuery),
     );
+
+    // Cierra el modal
+    function closeModal(): void {
+        showModal = false;
+    }
 </script>
 
 <div class="patients-page">
@@ -216,16 +260,6 @@
                         >
                             <List size={18} />
                         </button>
-                        <button
-                            class="icon-btn add"
-                            title="Añadir Consulta"
-                            on:click={() =>
-                                goto(
-                                    `/dashboard/patients/${patient.cedula}/consultas/nueva`,
-                                )}
-                        >
-                            <ClipboardPlus size={18} />
-                        </button>
                     </div>
                 </div>
             {:else}
@@ -248,11 +282,18 @@
             </div>
 
             <div class="modal-body">
+                {#if errorMessage}
+                    <div class="error-alert">
+                        {errorMessage}
+                    </div>
+                {/if}
+
                 <div class="form-group">
                     <label for="name">Nombre</label>
                     <input
                         id="name"
                         type="text"
+                        placeholder="Nombre"
                         bind:value={formData.nombre}
                         class="input"
                     />
@@ -262,6 +303,7 @@
                     <input
                         id="lastname"
                         type="text"
+                        placeholder="Apellido"
                         bind:value={formData.apellido}
                         class="input"
                     />
@@ -271,6 +313,7 @@
                     <input
                         id="pid"
                         type="text"
+                        placeholder="Cédula"
                         bind:value={formData.cedula}
                         class="input"
                     />
@@ -325,6 +368,9 @@
     .search-box {
         position: relative;
         max-width: 400px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .search-input {
@@ -433,10 +479,6 @@
         background-color: rgba(16, 185, 129, 0.1);
         color: var(--color-primary);
     }
-    .icon-btn.add:hover {
-        background-color: rgba(245, 158, 11, 0.1);
-        color: #f59e0b; /* Ambar para destacar creación */
-    }
 
     .empty-state {
         padding: var(--spacing-2xl);
@@ -519,5 +561,16 @@
     .w-full {
         width: 100%;
         justify-content: center;
+    }
+
+    .error-alert {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: var(--color-error);
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-error);
+        font-size: 0.875rem;
+        margin-bottom: var(--spacing-md);
+        text-align: center;
     }
 </style>

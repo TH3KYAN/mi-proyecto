@@ -53,10 +53,10 @@
     }
 
     // Filtrar consultas
-    $: filteredConsultas = consultas.filter(
-        (c) =>
-            c.motivo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            c.diagnostico.toLowerCase().includes(searchQuery.toLowerCase()),
+    $: filteredConsultas = consultas.filter((c) =>
+        (c.descripcion || "")
+            .toLowerCase()
+            .includes((searchQuery || "").toLowerCase()),
     );
 </script>
 
@@ -91,27 +91,14 @@
         </button>
     </div>
 
-    <div class="toolbar">
-        <div class="search-box">
-            <Search size={18} class="search-icon" />
-            <input
-                type="text"
-                placeholder="Buscar por motivo o diagnóstico..."
-                bind:value={searchQuery}
-                class="input search-input"
-            />
-        </div>
-    </div>
-
     {#if cargando}
         <div class="loading-state">Obteniendo historial médico...</div>
     {:else}
         <div class="table-container">
             <div class="consultas-table">
                 <div class="table-header">
-                    <div>FECHA Y HORA</div>
-                    <div>MOTIVO</div>
-                    <div>DIAGNÓSTICO</div>
+                    <div>FECHA</div>
+                    <div>DESCRIPCIÓN</div>
                     <div class="text-right">CÓDIGO</div>
                 </div>
 
@@ -120,20 +107,16 @@
                         <div class="fecha-col">
                             <Calendar size={16} class="text-secondary" />
                             <span
-                                >{new Date(consulta.fecha_hora).toLocaleString(
-                                    "es-ES",
-                                )}</span
+                                >{new Date(
+                                    consulta.fecha_consulta,
+                                ).toLocaleDateString("es-ES")}</span
                             >
                         </div>
-                        <div class="truncate" title={consulta.motivo}>
-                            {consulta.motivo}
-                        </div>
-                        <div class="truncate" title={consulta.diagnostico}>
-                            {consulta.diagnostico ||
-                                "Sin diagnóstico registrado"}
+                        <div class="truncate" title={consulta.descripcion}>
+                            {consulta.descripcion}
                         </div>
                         <div class="text-right text-secondary text-sm">
-                            #{consulta.id_consulta}
+                            #{consulta.id}
                         </div>
                     </div>
                 {:else}
@@ -207,6 +190,9 @@
     .search-box {
         position: relative;
         max-width: 400px;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
     }
 
     .search-input {
@@ -222,7 +208,7 @@
 
     .table-header {
         display: grid;
-        grid-template-columns: 200px 1fr 1fr 100px;
+        grid-template-columns: 150px 1fr 100px;
         padding: var(--spacing-md) var(--spacing-lg);
         background-color: var(--color-gray-50);
         border-bottom: 1px solid var(--color-gray-100);
@@ -235,7 +221,7 @@
 
     .table-row {
         display: grid;
-        grid-template-columns: 200px 1fr 1fr 100px;
+        grid-template-columns: 150px 1fr 100px;
         padding: var(--spacing-md) var(--spacing-lg);
         align-items: center;
         border-bottom: 1px solid var(--color-gray-50);
