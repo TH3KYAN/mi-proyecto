@@ -2,7 +2,7 @@
     import { page } from "$app/stores";
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
-    import { ArrowLeft, Plus, FileText, Calendar, Search } from "lucide-svelte";
+    import { ArrowLeft, Plus, FileText, Calendar, Search, Trash2 } from "lucide-svelte";
 
     const cedula = $page.params.id;
     let consultas: any[] = [];
@@ -58,6 +58,29 @@
             .toLowerCase()
             .includes((searchQuery || "").toLowerCase()),
     );
+
+    async function eliminarConsulta(idConsulta: string) {
+        if (!confirm("¿Está seguro que desea eliminar esta consulta?")) return;
+        
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`/api/pacientes/${cedula}/consultas/${idConsulta}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                // Actualizar la lista localmente
+                consultas = consultas.filter(c => c.id !== idConsulta);
+            } else {
+                const data = await res.json();
+                alert(`Error al eliminar la consulta: ${data.message || ""}`);
+            }
+        } catch (error) {
+            console.error("Error eliminando consulta:", error);
+            alert("Error de red al eliminar la consulta");
+        }
+    }
 </script>
 
 <div class="consultas-page">
@@ -100,6 +123,7 @@
                     <div>FECHA</div>
                     <div>DESCRIPCIÓN</div>
                     <div class="text-right">CÓDIGO</div>
+                    <div class="text-center">ACCIONES</div>
                 </div>
 
                 {#each filteredConsultas as consulta}
@@ -117,6 +141,15 @@
                         </div>
                         <div class="text-right text-secondary text-sm">
                             #{consulta.id}
+                        </div>
+                        <div class="text-center">
+                            <button
+                                class="btn-icon text-danger"
+                                title="Eliminar consulta"
+                                on:click={() => eliminarConsulta(consulta.id)}
+                            >
+                                <Trash2 size={16} />
+                            </button>
                         </div>
                     </div>
                 {:else}
@@ -208,7 +241,7 @@
 
     .table-header {
         display: grid;
-        grid-template-columns: 150px 1fr 100px;
+        grid-template-columns: 150px 1fr 100px 80px;
         padding: var(--spacing-md) var(--spacing-lg);
         background-color: var(--color-gray-50);
         border-bottom: 1px solid var(--color-gray-100);
@@ -221,7 +254,7 @@
 
     .table-row {
         display: grid;
-        grid-template-columns: 150px 1fr 100px;
+        grid-template-columns: 150px 1fr 100px 80px;
         padding: var(--spacing-md) var(--spacing-lg);
         align-items: center;
         border-bottom: 1px solid var(--color-gray-50);
@@ -252,6 +285,10 @@
 
     .text-right {
         text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
     }
 
     .text-secondary {
@@ -286,5 +323,30 @@
 
     .mt-4 {
         margin-top: 1rem;
+    }
+
+    .btn-icon {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: var(--radius-sm);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+        background-color: var(--color-gray-100);
+    }
+
+    .text-danger {
+        color: #ef4444;
+    }
+
+    .text-danger:hover {
+        color: #dc2626;
+        background-color: #fee2e2;
     }
 </style>
