@@ -34,7 +34,12 @@
         try {
             cargando = true;
             error = null;
-            const res = await fetch("/api/dispositivos");
+            const token = localStorage.getItem("token");
+            const res = await fetch("/api/dispositivos", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             if (res.ok) {
                 dispositivos = await res.json();
             } else {
@@ -70,8 +75,14 @@
         if (!dispositivoSeleccionado) return;
 
         try {
+            const token = localStorage.getItem("token");
             const res = await fetch(
                 `/api/dispositivos/${dispositivoSeleccionado}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                },
             );
             if (res.ok) {
                 datosDispositivo = await res.json();
@@ -266,6 +277,7 @@
             </div>
 
             <div class="metrics-grid">
+                <!-- Temperatura 1 -->
                 <div class="metric-card">
                     <div class="metric-icon primary">
                         <Thermometer size={24} color="white" />
@@ -281,6 +293,7 @@
                     </div>
                 </div>
 
+                <!-- Temperatura 2 -->
                 <div class="metric-card">
                     <div class="metric-icon secondary">
                         <Thermometer size={24} color="white" />
@@ -292,6 +305,54 @@
                                 ? datosDispositivo.data.temp2.toFixed(1)
                                 : "--.-"}
                             <span class="unit">°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ECG -->
+                <div class="metric-card">
+                    <div class="metric-icon ecg-icon">
+                        <Activity size={24} color="white" />
+                    </div>
+                    <div class="metric-content">
+                        <span class="metric-label">ECG</span>
+                        <div class="metric-value">
+                            {datosDispositivo.data.ecg !== undefined
+                                ? datosDispositivo.data.ecg.toFixed(0)
+                                : "---"}
+                            <span class="unit">mV</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Frecuencia Cardíaca (BPM) -->
+                <div class="metric-card">
+                    <div class="metric-icon bpm-icon">
+                        <Activity size={24} color="white" />
+                    </div>
+                    <div class="metric-content">
+                        <span class="metric-label">Frecuencia Cardíaca</span>
+                        <div class="metric-value">
+                            {datosDispositivo.data.bpm !== undefined
+                                ? datosDispositivo.data.bpm.toFixed(0)
+                                : "---"}
+                            <span class="unit">lpm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Oxígeno (SpO2) -->
+                <div class="metric-card">
+                    <div class="metric-icon spo2-icon">
+                        <Activity size={24} color="white" />
+                    </div>
+                    <div class="metric-content">
+                        <span class="metric-label">SpO2</span>
+                        <div class="metric-value">
+                            {datosDispositivo.data.spo2 !== undefined
+                                ? datosDispositivo.data.spo2.toFixed(1)
+                                : "--.-"}
+                            <span class="unit">%</span>
                         </div>
                     </div>
                 </div>
@@ -566,6 +627,18 @@
 
     .metric-icon.secondary {
         background: linear-gradient(135deg, #3b82f6, #2563eb);
+    }
+
+    .metric-icon.ecg-icon {
+        background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    }
+
+    .metric-icon.bpm-icon {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .metric-icon.spo2-icon {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
     }
 
     .metric-content {
